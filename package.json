@@ -1,0 +1,11 @@
+{
+  "name": "factory-testbed",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dependency-free task list, the test target of the Software Factory",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "license": "MIT"
+}
