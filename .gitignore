@@ -1,0 +1,8 @@
+.DS_Store
+.env*
+!.env.example
+node_modules/
+.trail
+graft/
+.ignore
+.claude/settings.local.json
