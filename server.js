@@ -16,7 +16,7 @@ function createServer(dataFile) {
     send(res, 200, { status: 'ok' });
   }
 
-  function handleListTasks(req, res) {
+  function listTasks(req, res) {
     send(res, 200, readTasks());
   }
 
@@ -43,7 +43,7 @@ function createServer(dataFile) {
 
   return http.createServer((req, res) => {
     if (req.method === 'GET' && req.url === '/health') return handleHealth(req, res);
-    if (req.method === 'GET' && req.url === '/api/tasks') return handleListTasks(req, res);
+    if (req.method === 'GET' && req.url === '/api/tasks') return listTasks(req, res);
     if (req.method === 'POST' && req.url === '/api/tasks') return handleAddTask(req, res);
     if (req.method === 'GET' && req.url === '/') return handleIndex(req, res);
     send(res, 404, { error: 'not found' });
