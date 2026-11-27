@@ -47,3 +47,38 @@ test('GET / serves the HTML page', async (t) => {
   assert.match(res.headers.get('content-type'), /text\/html/);
   assert.match(await res.text(), /<h1>Tasks<\/h1>/);
 });
+
+async function addTask(base, title) {
+  return (await fetch(`${base}/api/tasks`, { method: 'POST', body: JSON.stringify({ title }) })).json();
+}
+
+test('GET /api/tasks/<id> shares a task with its title', async (t) => {
+  const { base } = await start(t);
+  const task = await addTask(base, 'Buy milk');
+  const list = await (await fetch(`${base}/api/tasks`)).json();
+  assert.strictEqual(list[0].id, task.id);
+  const res = await fetch(`${base}/api/tasks/${task.id}`);
+  assert.strictEqual(res.status, 200);
+  assert.deepStrictEqual(await res.json(), { id: task.id, title: 'Buy milk' });
+});
+
+test('GET /api/tasks/<id> answers 404 for an unknown id', async (t) => {
+  const { base } = await start(t);
+  const res = await fetch(`${base}/api/tasks/99`);
+  assert.strictEqual(res.status, 404);
+  assert.deepStrictEqual(await res.json(), { error: 'not found' });
+});
+
+test('GET /api/tasks/<id> answers 404 for a non-numeric id', async (t) => {
+  const { base } = await start(t);
+  assert.strictEqual((await fetch(`${base}/api/tasks/abc`)).status, 404);
+});
+
+test('DELETE /api/tasks/<id> answers 404 and keeps the task', async (t) => {
+  const { base } = await start(t);
+  const task = await addTask(base, 'Keep me');
+  const res = await fetch(`${base}/api/tasks/${task.id}`, { method: 'DELETE' });
+  assert.strictEqual(res.status, 404);
+  const list = await (await fetch(`${base}/api/tasks`)).json();
+  assert.deepStrictEqual(list, [task]);
+});
