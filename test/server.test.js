@@ -47,3 +47,20 @@ test('GET / serves the HTML page', async (t) => {
   assert.match(res.headers.get('content-type'), /text\/html/);
   assert.match(await res.text(), /<h1>Tasks<\/h1>/);
 });
+
+test('GET /api/tasks/<id> shows a shared task read-only', async (t) => {
+  const { base } = await start(t);
+  await fetch(`${base}/api/tasks`, { method: 'POST', body: JSON.stringify({ title: 'Buy milk' }) });
+  const res = await fetch(`${base}/api/tasks/1`);
+  assert.strictEqual(res.status, 200);
+  assert.deepStrictEqual(await res.json(), { id: 1, title: 'Buy milk' });
+  for (const method of ['PUT', 'PATCH', 'DELETE']) {
+    assert.strictEqual((await fetch(`${base}/api/tasks/1`, { method })).status, 404);
+  }
+});
+
+test('GET /api/tasks/<id> answers 404 for unknown and non-numeric ids', async (t) => {
+  const { base } = await start(t);
+  assert.strictEqual((await fetch(`${base}/api/tasks/99`)).status, 404);
+  assert.strictEqual((await fetch(`${base}/api/tasks/abc`)).status, 404);
+});

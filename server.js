@@ -36,6 +36,12 @@ function createServer(dataFile) {
     });
   }
 
+  function handleGetTask(req, res, id) {
+    const task = readTasks().find((t) => t.id === id);
+    if (!task) return send(res, 404, { error: 'not found' });
+    send(res, 200, task);
+  }
+
   function handleIndex(req, res) {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(fs.readFileSync(path.join(__dirname, 'index.html')));
@@ -45,6 +51,8 @@ function createServer(dataFile) {
     if (req.method === 'GET' && req.url === '/health') return handleHealth(req, res);
     if (req.method === 'GET' && req.url === '/api/tasks') return handleListTasks(req, res);
     if (req.method === 'POST' && req.url === '/api/tasks') return handleAddTask(req, res);
+    const m = req.method === 'GET' && /^\/api\/tasks\/(\d+)$/.exec(req.url);
+    if (m) return handleGetTask(req, res, Number(m[1]));
     if (req.method === 'GET' && req.url === '/') return handleIndex(req, res);
     send(res, 404, { error: 'not found' });
   });
