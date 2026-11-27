@@ -25,7 +25,10 @@ function createServer(dataFile) {
     req.on('data', (c) => (raw += c));
     req.on('end', () => {
       let title;
-      try { title = String(JSON.parse(raw).title || '').trim(); } catch { title = ''; }
+      try {
+        const parsed = JSON.parse(raw);
+        title = parsed && typeof parsed.title === 'string' ? parsed.title.trim() : '';
+      } catch { title = ''; }
       if (!title) return send(res, 400, { error: 'title required' });
       const tasks = readTasks();
       const task = { id: tasks.reduce((m, t) => Math.max(m, t.id), 0) + 1, title };

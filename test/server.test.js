@@ -86,3 +86,10 @@ test('GET / page has the task list and an add form wired to the API', async (t) 
   assert.match(html, /fetch\('\/api\/tasks'/);
   assert.match(html, /method: 'POST'/);
 });
+
+test('POST /api/tasks rejects a non-string title', async (t) => {
+  const { base } = await start(t);
+  assert.strictEqual((await post(base, JSON.stringify({ title: 123 }))).status, 400);
+  assert.strictEqual((await post(base, JSON.stringify({ title: ['a'] }))).status, 400);
+  assert.strictEqual((await post(base, 'null')).status, 400);
+});
