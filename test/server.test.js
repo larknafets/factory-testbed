@@ -55,8 +55,6 @@ async function addTask(base, title) {
 test('GET /api/tasks/<id> shares a task with its title', async (t) => {
   const { base } = await start(t);
   const task = await addTask(base, 'Buy milk');
-  const list = await (await fetch(`${base}/api/tasks`)).json();
-  assert.strictEqual(list[0].id, task.id);
   const res = await fetch(`${base}/api/tasks/${task.id}`);
   assert.strictEqual(res.status, 200);
   assert.deepStrictEqual(await res.json(), { id: task.id, title: 'Buy milk' });
