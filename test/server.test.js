@@ -13,6 +13,14 @@ async function start(t) {
   return { base: `http://127.0.0.1:${server.address().port}` };
 }
 
+async function post(base, body) {
+  return fetch(`${base}/api/tasks`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body,
+  });
+}
+
 test('GET /health answers ok', async (t) => {
   const { base } = await start(t);
   const res = await fetch(`${base}/health`);
@@ -47,14 +55,6 @@ test('GET / serves the HTML page', async (t) => {
   assert.match(res.headers.get('content-type'), /text\/html/);
   assert.match(await res.text(), /<h1>Tasks<\/h1>/);
 });
-
-async function post(base, body) {
-  return fetch(`${base}/api/tasks`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body,
-  });
-}
 
 test('POST /api/tasks answers 201 with id and title', async (t) => {
   const { base } = await start(t);
